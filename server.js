@@ -24,7 +24,7 @@ app.get("/", async (_req, res) => {
 });
 
 app.get("/delay", async (_req, res) => {
-  const time = randomDelay(150, 200);
+  const time = randomDelay(500, 500);
   await delay(time);
   res.status(200).json({ message: `Delayed response from ${SERVER}` });
 });
