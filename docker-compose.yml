@@ -1,111 +1,23 @@
 version: "3"
 
 services:
-  balancer_go_rr:
-    container_name: balancer_go_rr
-    image: golang:1.19-alpine
-    working_dir: /app
-    networks:
-      - balancer
-    command: go run balancer.go
-    ports:
-      - 8001:8001
-    volumes:
-      - .:/app
-    environment:
-      - PORT=8001
-      - MODE=rr
-
-  balancer_go_drr:
-    container_name: balancer_go_drr
-    image: golang:1.19-alpine
-    working_dir: /app
-    networks:
-      - balancer
-    command: go run balancer.go
-    ports:
-      - 8002:8002
-    volumes:
-      - .:/app
-    environment:
-      - PORT=8002
-      - MODE=drr
-
-  # balancer_node:
-  #   container_name: balancer_node
-  #   image: node:18-alpine
-  #   working_dir: /app
-  #   networks:
-  #     - balancer
-  #   command: node balancer.js
-  #   ports:
-  #     - 8001:8001
-  #   volumes:
-  #     - .:/app
-  #   environment:
-  #     - PORT=8001
-
-  server_1:
-    container_name: server_1
+  server:
     image: node:18-alpine
     working_dir: /app
-    networks:
-      - balancer
     command: node server.js
-    ports:
-      - 3001:3001
     volumes:
       - .:/app
     environment:
-      - PORT=3001
-      - SERVER=SERVER_1
+      - PORT=3000
+    deploy:
+      replicas: 1
 
-  server_2:
-    container_name: server_2
-    image: node:18-alpine
-    working_dir: /app
-    networks:
-      - balancer
-    command: node server.js
+  ngnix:
+    image: nginx:latest
     ports:
-      - 3002:3002
+      - 8080:80
+      - 3000:3000
     volumes:
-      - .:/app
-    environment:
-      - PORT=3002
-      - SERVER=SERVER_2
-
-  server_3:
-    container_name: server_3
-    image: node:18-alpine
-    working_dir: /app
-    networks:
-      - balancer
-    command: node server.js
-    ports:
-      - 3003:3003
-    volumes:
-      - .:/app
-    environment:
-      - PORT=3003
-      - SERVER=SERVER_3
-
-  server_4:
-    container_name: server_4
-    image: node:18-alpine
-    working_dir: /app
-    networks:
-      - balancer
-    command: node server.js
-    ports:
-      - 3004:3004
-    volumes:
-      - .:/app
-    environment:
-      - PORT=3004
-      - SERVER=SERVER_4
-
-networks:
-  balancer:
-    driver: bridge
-    external: true
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - server
